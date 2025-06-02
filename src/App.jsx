@@ -1,3 +1,4 @@
+// Importar hooks, instancias de Supabase y los estilos CSS
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import './App.css'
@@ -20,9 +21,11 @@ export default function App() {
 
   // Datos Inicales
   useEffect(() => {
+    // Obtener personajes desde Supabase
     fetchCharacters()
   }, [])
 
+  // Obtener personajes desde la tabla "Character" en Supabase por su id y en orden ascendiente
   async function fetchCharacters() {
     const { data, error } = await supabase
       .from('Character')
@@ -32,36 +35,38 @@ export default function App() {
     else setChars(data)
   }
 
-  // Crear / actualizar personajes
+  // Crear o actualizar personajes según exista editingId
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
-    const payload = { ...form }
+    const payload = { ...form } // Copiar valores del formulario
     if (editingId) {
+      // Si editingId tiene valor, actualizar personaje existente
       const { error } = await supabase
         .from('Character')
-        .update(payload)
-        .eq('id', editingId)
+        .update(payload)  // update
+        .eq('id', editingId) //hacer el filtro por id
       if (error) setError(error.message)
       else {
-        resetForm()
-        fetchCharacters()
+        resetForm()  // Limpiar formulario y estado de edición
+        fetchCharacters()  // Volver a cargar los personajes
       }
     } else {
+      // Si no hay editingId, insertar nuevo personaje
       const { error } = await supabase
         .from('Character')
-        .insert(payload)
+        .insert(payload)  // Insertar nuevo personaje
       if (error) setError(error.message)
       else {
-        resetForm()
-        fetchCharacters()
+        resetForm()  // Limpiar formulario y estado de edición
+        fetchCharacters()  // Volver a cargar los personajes
       }
     }
   }
 
   // Editar
   function startEdit(char) {
-    setEditingId(char.id)
+    setEditingId(char.id)  // Establecer id del personaje para editar
     setForm({
       name: char.name,
       gender: char.gender,
@@ -75,19 +80,21 @@ export default function App() {
     setError('')
   }
 
-  // Eliminar un personaje
+  // Eliminar un personaje por id
   async function handleDelete(id) {
-    if (!confirm('Are you sure you want to delete this character?')) return
+    if (!confirm('Are you sure you want to delete this character?')) return // confirmacion de eliminacion
     const { error } = await supabase
       .from('Character')
-      .delete()
-      .eq('id', id)
+      .delete()  // Eliminar personaje
+      .eq('id', id)  // Filtrar por id
     if (error) setError(error.message)
     else fetchCharacters()
   }
 
+  // Reiniciar estado del formulario y de edición
   function resetForm() {
-    setEditingId(null)
+    setEditingId(null)  // Quitar el editionId
+    // Limpiar campos del formulario
     setForm({
       name: '',
       gender: '',
@@ -101,7 +108,7 @@ export default function App() {
     setError('')
   }
 
-  // Buscar (filtrar personajes)
+  // Filtrar personajes según el valor de búsqueda (search)
   const filtered = chars.filter(c =>
     c.name.toLowerCase().includes(search.toLowerCase())
   )
@@ -110,11 +117,13 @@ export default function App() {
     <div id="root">
       <div className="title-container">
         <div className="header-box">
+          {/* Titulo y subtitulo de la pagina */}
           <h1>Genshin Impact: Characters Organization</h1>
           <p>Explore and manage your favorite characters.</p>
         </div>
       </div>
 
+      {/* Buscar personajes por su nombre */}
       <div className="serarch">
         <input
           type="text"
@@ -136,11 +145,13 @@ export default function App() {
                 onChange={e =>
                   setForm(f => ({ ...f, [key]: e.target.value }))
                 }
-                required
+                required /* Campos obligatorios */
               />
             </div>
           ))}
         </div>
+        
+        {/* Si esta editando mostrar los botones de cancel y Update, si no solo Add */}
         <div className="form-actions">
           {editingId && (
             <button type="button" onClick={resetForm} className="btn-cancel">
@@ -155,14 +166,19 @@ export default function App() {
 
       {/* Lista de tarjetas */}
       <div className="cards-container">
+        {/* Recorrer lista filtrada de personajes */}
         {filtered.map(char => (
           <div key={char.id} className="card">
+             {/* Mostrar la imagen de personajes */}
             {char.imageUrl && (
               <img src={char.imageUrl} alt={char.name} className="card-img" />
             )}
             <div className="card-content">
+              {/* Nombre del personaje */}
               <h3>{char.name}</h3>
+              {/* Genero y region del personaje */}
               <p className="subtext">{char.gender} • {char.region}</p>
+              {/* Informacion del personaje en lista */}
               <ul>
                 <li>
                   <strong>Element:</strong> {char.element}
@@ -178,9 +194,11 @@ export default function App() {
                 </li>
               </ul>
               <div className="card-actions">
+                {/* Botón para editar personaje */}
                 <button onClick={() => startEdit(char)} className="btn-edit">
                   Edit
                 </button>
+                {/* Botón para eliminar personaje */}
                 <button
                   onClick={() => handleDelete(char.id)}
                   className="btn-delete"
