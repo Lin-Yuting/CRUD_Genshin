@@ -32,7 +32,7 @@ export default function App() {
     else setChars(data)
   }
 
-  // Crear / actualizar
+  // Crear / actualizar personajes
   async function handleSubmit(e) {
     e.preventDefault()
     setError('')
@@ -75,7 +75,7 @@ export default function App() {
     setError('')
   }
 
-  // Eliminar
+  // Eliminar un personaje
   async function handleDelete(id) {
     if (!confirm('Are you sure you want to delete this character?')) return
     const { error } = await supabase
@@ -115,7 +115,7 @@ export default function App() {
         </div>
       </div>
 
-      <div className="controls">
+      <div className="serarch">
         <input
           type="text"
           placeholder="Search Character..."
